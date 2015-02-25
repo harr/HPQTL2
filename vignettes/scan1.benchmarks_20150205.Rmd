@@ -1,0 +1,32 @@
+---
+title: "Benchmarks"
+output: html_document
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(HPQTL2)
+library(microbenchmark)
+
+cross <- sim.geno.f2(250)
+G <- gensim(cross$X, cross$markers)
+Glist <- gensim(cross$X, cross$markers, "LOCO")
+Glist2 <- gensim(cross$X, cross$markers, "POMOLOCO")
+```
+
+
+```{r}
+set.seed(123)
+pheno <- sim.pheno(cross$X, G, 0.5)
+
+microbenchmark(
+  fit.lm = scan.lm(pheno, cross$X, cross$markers),
+  fit.lmm = scan.lmm(pheno, cross$X, cross$markers, G=G),
+  fit.loco = scan.loco(pheno, cross$X, cross$markers, Glist=Glist),
+  fit.pomo = scan.pomo(pheno, cross$X, cross$markers, G=G),
+#  fit.pomoloco = scan.pomoloco(pheno, cross$X, cross$markers, Glist=Glist2),
+#  fit.pomoloco2 = scan.pomoloco(pheno, cross$X, cross$markers, Glist=Glist2, faster = FALSE),
+  times = 5
+)
+```
+
+
